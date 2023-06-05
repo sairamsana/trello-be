@@ -13,8 +13,8 @@ const getTrelloMemberData = (access_token) => {
 };
 
 // get list on a board @ required idList
-const getListOnBoardsData = (boardID, access_token) => {
-  const url = `${process.env.TRELLO_BASEURL}/lists/${boardID}/cards/`;
+const getTrelloListOnBoardsData = (boardID, access_token) => {
+  const url = `${process.env.TRELLO_BASEURL}/boards/${boardID}/lists/`;
   return axios.get(url, { params: { key: process.env.TRELLO_APIKEY, token: access_token, } })
     .then((res) => {
       return res
@@ -23,9 +23,19 @@ const getListOnBoardsData = (boardID, access_token) => {
     });
 };
 
+// get list of cards @ required list id
+const getTrelloListOfCardData = (cardID, access_token) => {
+  const url = `${process.env.TRELLO_BASEURL}/cards/${cardID}/list/`;
+  return axios.get(url, { params: { key: process.env.TRELLO_APIKEY, token: access_token, } })
+    .then((res) => {
+      return res
+    }, (error) => {
+      return error
+    });
+};
 
 // create a new card
-const saveCard = (params, access_token) => {
+const saveTrelloCard = (params, access_token) => {
   const url = `${process.env.TRELLO_BASEURL}/cards`;
   return axios.post(url, {}, { params: { key: process.env.TRELLO_APIKEY, token: access_token, ...params } })
     .then((res) => {
@@ -38,7 +48,7 @@ const saveCard = (params, access_token) => {
 
 
 // update a card @required Card ID
-const updateCard = (cardID, params, access_token) => {
+const updateTrelloCard = (cardID, params, access_token) => {
   const url = `${process.env.TRELLO_BASEURL}/cards/${cardID}`;
   return axios.put(url, {}, { params: { key: process.env.TRELLO_APIKEY, token: access_token, ...params } })
     .then((res) => {
@@ -49,7 +59,7 @@ const updateCard = (cardID, params, access_token) => {
 };
 
 // delete a card
-const deleteCard = (cardID, access_token) => {
+const deleteTrelloCard = (cardID, access_token) => {
   const url = `${process.env.TRELLO_BASEURL}/cards/${cardID}`;
   return axios.delete(url, { params: { key: process.env.TRELLO_APIKEY, token: access_token, } })
     .then((res) => {
@@ -60,4 +70,4 @@ const deleteCard = (cardID, access_token) => {
 };
 
 
-module.exports = { getTrelloMemberData,getListOnBoardsData, saveCard, updateCard, deleteCard };
+module.exports = { getTrelloMemberData, getTrelloListOnBoardsData, getTrelloListOfCardData, saveTrelloCard, updateTrelloCard, deleteTrelloCard };
