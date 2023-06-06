@@ -4,11 +4,8 @@ const ListSchema = require('../models/ListSchema')
 
 const { getTrelloListOnBoardsData, getTrelloListOfCardData, saveTrelloCard, updateTrelloCard, deleteTrelloCard } = require('../services/trello.service')
 
-// temp save for testing
-const token = ''
 
-// getCardsofboard
-
+// get cards of board
 const getCardsofboardController = (req, res) => {
 
     const idBoard = req.session.idBoard;
@@ -31,7 +28,7 @@ const getCardsofboardController = (req, res) => {
 // required idList
 const createCardController = (req, res) => {
     const parseData = req.body;
-    return saveTrelloCard(parseData, token).then((response) => {
+    return saveTrelloCard(parseData, req.session.token).then((response) => {
         if (response.status == 200) {
             const { id, idBoard, idList, name, email, dateLastActivity, desc } = response.data;
             return saveCard({ id, idBoard, idList, name, email, dateLastActivity, desc }).then((saved) => {
@@ -50,7 +47,7 @@ const createCardController = (req, res) => {
 const updateCardController = (req, res) => {
     const parseData = req.body;
     const cardID = req.params.id;
-    return updateTrelloCard(cardID, parseData, token).then((response) => {
+    return updateTrelloCard(cardID, parseData, req.session.token).then((response) => {
         if (response.status == 200) {
             const { id, idBoard, idList, name, email, dateLastActivity, desc } = response.data;
             return updateCard({ id, idBoard, idList, name, email, dateLastActivity, desc }).then((updated) => {
@@ -68,7 +65,7 @@ const updateCardController = (req, res) => {
 // required param cardid 
 const deleteCardController = (req, res) => {
     const cardID = req.params.id;
-    return deleteTrelloCard(cardID, token).then((response) => {
+    return deleteTrelloCard(cardID, req.session.token).then((response) => {
         if (response.status == 200) {
             return deleteCard({ _id: cardID }).then((deleted) => {
                 return res.status(response.status).json({ status: "deleted successfully", ...deleted })
@@ -135,6 +132,7 @@ const deleteCard = (data) => {
     })
 };
 
+// get list on board required query idMember
 const getListonBoard = (data) => {
     return ListSchema.find(data).then((res) => {
         return res;

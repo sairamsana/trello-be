@@ -14,6 +14,26 @@ npm install
 
 Trello API Key, Secret, and call back URL [Trello API](https://trello.com/power-ups/admin)
 
+* config
+    * config.env
+
+```
+NDOE_ENV=developmet
+PORT=5000
+MONGO_URI_DEV=mongodb://localhost:27017/speakaiintegration
+
+TRELLO_BASEURL=https://api.trello.com/1
+TRELLO_APIKEY=__TRELLO_APIKEY__
+
+CORSORIGIN=http://localhost:4200
+
+SESSION_SECRET=__RANDOMSTRING__
+
+TRELLO_CALLBACK_URL=http://localhost:5000/api/v1/authenticate/parsetoken
+
+FRONTEND_REDIRECT_URL_SUCCESS=http://localhost:4200/dashboard/default
+FRONTEND_REDIRECT_URL_FAIL=http://localhost:4200/authenticate/failed
+```
 
 ## Usage
 

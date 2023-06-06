@@ -3,8 +3,6 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const session = require('express-session');
 const connectDB = require('./config/mongodb')
-const createMember = require('./api/controller/trelloauth.controller')
-const { getCardsofboardController, getCardController, createCardController, updateCardController, deleteCardController } = require('./api/controller/card.controller')
 
 
 
@@ -17,21 +15,21 @@ dotenv.config({ path: './config/config.env' });
 
 const app = express();
 
-app.use(cors({ credentials: true , origin: 'http://localhost:4200'}));
+// corsconfiguration
+app.use(cors({ credentials: true, origin: process.env.CORSORIGIN }));
 
 // dbconnect
 connectDB();
 
 // session creation
 app.use(session({
-    secret: 'abdsasdfdsf',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true
 }));
 
-
+// auth session check middleware
 const auth = (req, res, next) => {
-    console.log(" sana", req.session.idMember)
     if (req.session && req.session.idMember)
         return next();
     else
@@ -47,17 +45,8 @@ app.use("/api/v1/card", auth, trellocardRoutes);
 
 
 app.get('/api/v1/member', auth, (req, res) => {
-    return res.json({ _id: req.session.idMember })
+    return res.json({ _id: req.session.idMember, ...JSON.parse(req.session.memberInfo) })
 })
-
-
-// app.get('/login', (req, res) => {
-//     req.session.idMember = "647a8031ad313b4ba80e50e7";
-//     req.session.idBoard = "647ac9a8fa422bad0b47dcd9";
-//     // createMember(req, res)
-//     res.json({ name: "Sana" })
-// })
-
 
 
 const PORT = process.env.PORT || 5000;

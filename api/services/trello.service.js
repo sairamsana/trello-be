@@ -1,6 +1,5 @@
 const axios = require('axios');
 
-
 // get member information after getting access token
 const getTrelloMemberData = (access_token) => {
   const url = `${process.env.TRELLO_BASEURL}/members/me/`;

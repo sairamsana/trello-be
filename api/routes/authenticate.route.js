@@ -3,42 +3,42 @@ const path = require('path');
 const router = express.Router();
 const createMember = require('../controller/trelloauth.controller')
 
+// redirect to trello auth url and get permissions and return a token
 router.get('/', (req, res) => {
-    res.redirect('https://trello.com/1/authorize?return_url=http://localhost:5000/api/v1/authenticate/parsetoken&expiration=never&scope=read,write,account&response_type=token&key=9303bee3409b8c827da5aec23a86c644&callback_method=fragment');
+    res.redirect(`https://trello.com/1/authorize?return_url=${process.env.TRELLO_CALLBACK_URL}&expiration=never&scope=read,write,account&response_type=token&key=${process.env.TRELLO_APIKEY}&callback_method=fragment`);
 })
 
+// parse token return by trello auth api to call back url
 router.get('/parsetoken', (req, res) => {
-
     res.sendFile(path.join("html/parseToken.html"), { root: __dirname });
 })
 
+// get member information on first call and redirect to frontend application 
 router.post('/savetoken', (req, res) => {
-    console.log("req sabna", req.body.token);
     if (req.body.token != null) {
         createMember(req, res).then((status) => {
-            console.log("status", status)
-
+            console.log("1 ", status)
             if (status) {
                 req.session.save(() => {
-                    res.redirect('http://localhost:4200/dashboard/default');
+                    res.redirect(process.env.FRONTEND_REDIRECT_URL_SUCCESS);
                 })
-
             } else {
-                res.redirect('http://localhost:4200/authenticate/failed');
+                res.redirect(process.env.FRONTEND_REDIRECT_URL_FAIL);
             }
         }, (error) => {
-            res.redirect('http://localhost:4200/authenticate/failed');
+            res.redirect(process.env.FRONTEND_REDIRECT_URL_FAIL);
         });
     } else {
-        res.redirect('http://localhost:4200/authenticate/failed');
+        res.redirect(process.env.FRONTEND_REDIRECT_URL_FAIL);
 
     }
 })
 
-// router.get('/logout', function (req, res) {
-//     req.session.destroy();
-//     res.send("logout success!");
-// });
+// logout user session 
+router.get('/logout', function (req, res) {
+    req.session.destroy();
+    res.json({ status: "success", message: "logout success!" });
+});
 
 
 module.exports = router;

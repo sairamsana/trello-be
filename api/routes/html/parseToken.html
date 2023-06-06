@@ -11,8 +11,6 @@
     <script>
         const url = window.location.hash
         const params = Object.fromEntries(new URLSearchParams(url.split('#')[1]))
-        console.log(params.token)
-
         var f = document.createElement('form');
         f.action = '/api/v1/authenticate/savetoken';
         f.method = 'POST';

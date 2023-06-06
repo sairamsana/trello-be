@@ -11,11 +11,16 @@ const createMember = (req, res) => {
 
     return getTrelloMemberData(req.body.token).then((response) => {
         if (response !== null && response.status == 200) {
-            
+
             // have to check will there be a default board else below string will fail?
             const boardID = response.data.idBoards[0]
+
+            // session create for login user
             req.session.idMember = response.data.id;
             req.session.idBoard = boardID;
+            req.session.token = req.body.token;
+            req.session.memberInfo = JSON.stringify(response.data)
+
             // check if the user exists in db
             query = { _id: response.data.id }
             return getMember(query).then((member) => {
@@ -23,22 +28,21 @@ const createMember = (req, res) => {
 
                     // if user exists then update the existing user with token
                     return updateMember(member).then((updated) => {
-                        return true
-                        getTrelloListOnBoardsData(boardID, token).then((listRes) => {
+                        return getTrelloListOnBoardsData(boardID, req.session.token).then((listRes) => {
                             if (listRes.status == 200) {
-
-                                // saveList(addIdMember(listRes.data, response.data)).then((savedList) => {
-                                //     return true
-                                // })
+                                return udpateList(addIdMember(listRes.data, response.data)).then((updateList) => {
+                                    return true
+                                })
                             }
                         })
                     })
+
                 } else {
                     // create a new user in db
-                    return saveMember(response.data).then((updated) => {
-                        getTrelloListOnBoardsData(boardID, token).then((listRes) => {
+                    return saveMember(response.data).then((saved) => {
+                        return getTrelloListOnBoardsData(boardID, req.session.token).then((listRes) => {
                             if (listRes.status == 200) {
-                                saveList(addIdMember(listRes.data, response.data)).then((savedList) => {
+                                return saveList(addIdMember(listRes.data, response.data)).then((savedList) => {
                                     return true
                                 })
                             }
@@ -51,10 +55,11 @@ const createMember = (req, res) => {
         }
     }, (error) => {
         let { response } = error;
-        return res.status(response.status).json(response.data);
+        return false;
     })
 };
 
+// add member id to list on boards
 const addIdMember = (lists, member) => {
     const retList = []
     lists.forEach(l => {
@@ -94,8 +99,18 @@ const updateMember = (data) => {
     })
 };
 
+// save array list
 const saveList = (data) => {
     return ListSchema.insertMany(data).then((res) => {
+        return res;
+    }, (error) => {
+        console.log("Error ", error)
+    })
+};
+
+// udpate array list
+const udpateList = (data) => {
+    return ListSchema.updateMany(data).then((res) => {
         return res;
     }, (error) => {
         console.log("Error ", error)
